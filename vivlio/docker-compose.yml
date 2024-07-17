@@ -1,0 +1,12 @@
+services:
+  poetry-project:
+    container_name: vivlio
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./web:/server/app/web
+    command: uvicorn web.main:app --host 0.0.0.0 --port 8000 --reload --no-access-log --header server:madewithpython
+    environment:
+      - LOCAL_HOST_NAME=${HOST_NAME:-default}
+    tty: true
