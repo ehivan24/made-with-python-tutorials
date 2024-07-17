@@ -1,0 +1,40 @@
+set export
+
+COMMIT := `git rev-parse --short HEAD`
+REPO_URL := `(git config --get remote.origin.url)`
+DOCKER_ECR_TAG := "latest"
+DOCKER_IMAGE := "vivlio"
+
+@install:
+    poetry install
+
+@build:
+    cowsay "${REPO_URL} ${COMMIT}" | lolcat
+    just make-pretty
+    just install
+    docker build -t ${DOCKER_IMAGE} .
+
+@up:
+    docker-compose up
+
+@down:
+    docker-compose down
+
+@restart:
+    docker compose restart ${DOCKER_IMAGE}
+
+@logs service:
+    docker compose logs --follow --tail 100 --no-log-prefix {{service}}
+
+@logs-all:
+    docker compose logs --follow --tail 100 --no-log-prefix
+
+@logs-prefix-all:
+    docker compose logs --follow --tail 100
+
+@make-pretty:
+    poetry run black web/
+    poetry run isort web/
+    poetry run ruff check web/ --fix
+
+
